@@ -1,4 +1,6 @@
 - Clone repo using SSH-key (highly recommended) or HTTPS (not recommended)
+- Send to iryna.perova@nure.ua or to telegram @rikywenok your github username 
 - Create your own branch (name=your last name)
-- Add all files to you branch, commit and push
+- Add all files to you branch, commit, wait my response to email/telegram  
+- push changes (hope not to main branch)
 - PLEASE DO NOT create pull requests!
