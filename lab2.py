@@ -18,7 +18,7 @@ df['stroke'] = pd.to_numeric(df['stroke'], errors="coerce")
 df['peak-rpm'] = pd.to_numeric(df['peak-rpm'], errors="coerce")
 
 from pycaret.clustering import *
-# Ініціюємо модель з попередньою нормалізацією даних
+# Ініціюємо модель з попередньою нормалізацією  даних
 cl = setup(df, normalize=True, session_id=42)
 cl
 
