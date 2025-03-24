@@ -104,125 +104,125 @@ st.markdown("""
 label_encoder = LabelEncoder()
 Data['type'] = label_encoder.fit_transform(Data['type'])
 
-# Показ первых строк датасета
-if st.checkbox("Показать первые строки датасета"):
+# Показ перших рядків датасету
+if st.checkbox("Показати перші рядки датасету"):
     st.write(Data.head())
 
-# Описание переменных
-st.sidebar.header("Описание переменных")
-variable_description = st.sidebar.selectbox("Выберите переменную для описания:", Data.columns)
+# Опис змінних
+st.sidebar.header("Опис змінних")
+variable_description = st.sidebar.selectbox("Оберіть змінну для опису:", Data.columns)
 if variable_description in Data.columns:
-    st.sidebar.write(f"**{variable_description}**: Описание переменной...")
+    st.sidebar.write(f"**{variable_description}**: Опис змінної...")
 
-# Выбор переменных для анализа
-st.sidebar.header("Настройки визуализации")
-x_axis = st.sidebar.selectbox("Выберите переменную для оси X:", Data.columns)
-y_axis = st.sidebar.selectbox("Выберите переменную для оси Y:", Data.columns)
-color = st.sidebar.selectbox("Выберите переменную для цвета:", Data.columns)
+# Вибір змінних для аналізу
+st.sidebar.header("Налаштування візуалізації")
+x_axis = st.sidebar.selectbox("Оберіть змінну для осі X:", Data.columns)
+y_axis = st.sidebar.selectbox("Оберіть змінну для осі Y:", Data.columns)
+color = st.sidebar.selectbox("Оберіть змінну для кольору:", Data.columns)
 
-# Ползунок для выбора диапазона значений
+# Повзунок для вибору діапазону значень
 range_slider = st.sidebar.slider(
-    "Выберите диапазон значений:",
+    "Оберіть діапазон значень:",
     min_value=float(Data[x_axis].min()),
     max_value=float(Data[x_axis].max()),
     value=(float(Data[x_axis].min()), float(Data[x_axis].max()))
 )
 
-# Фильтрация данных по выбранному диапазону
+# Фільтрація даних за обраним діапазоном
 filtered_data = Data[(Data[x_axis] >= range_slider[0]) & (Data[x_axis] <= range_slider[1])]
 
-# Построение интерактивного графика
-st.header("📈 Интерактивный график")
+# Побудова інтерактивного графіка
+st.header("📈 Інтерактивний графік")
 fig = px.scatter(filtered_data, x=x_axis, y=y_axis, color=color, title=f"{x_axis} vs {y_axis}")
 st.plotly_chart(fig)
 
-# Дополнительные интерактивные элементы
-st.sidebar.header("Дополнительные настройки")
-show_histogram = st.sidebar.checkbox("Показать гистограмму")
+# Додаткові інтерактивні елементи
+st.sidebar.header("Додаткові налаштування")
+show_histogram = st.sidebar.checkbox("Показати гістограму")
 
 if show_histogram:
-    hist_axis = st.sidebar.selectbox("Выберите переменную для гистограммы:", Data.columns)
-    fig_hist = px.histogram(filtered_data, x=hist_axis, title=f"Гистограмма {hist_axis}")
+    hist_axis = st.sidebar.selectbox("Оберіть змінну для гістограми:", Data.columns)
+    fig_hist = px.histogram(filtered_data, x=hist_axis, title=f"Гістограма {hist_axis}")
     st.plotly_chart(fig_hist)
 
-# Boxplot для выбранной переменной
-if st.sidebar.checkbox("Показать Boxplot"):
-    boxplot_axis = st.sidebar.selectbox("Выберите переменную для Boxplot:", Data.columns)
+# Boxplot для обраної змінної
+if st.sidebar.checkbox("Показати Boxplot"):
+    boxplot_axis = st.sidebar.selectbox("Оберіть змінну для Boxplot:", Data.columns)
     fig_box = px.box(filtered_data, y=boxplot_axis, title=f"Boxplot {boxplot_axis}")
     st.plotly_chart(fig_box)
 
-# Heatmap корреляций
-if st.checkbox("Показать Heatmap корреляций"):
-    st.header("Тепловая карта корреляций")
+# Heatmap кореляцій
+if st.checkbox("Показати Heatmap кореляцій"):
+    st.header("Теплова карта кореляцій")
     corr = Data.corr()
-    fig_heatmap = px.imshow(corr, text_auto=True, title="Тепловая карта корреляций")
+    fig_heatmap = px.imshow(corr, text_auto=True, title="Теплова карта кореляцій")
     st.plotly_chart(fig_heatmap)
 
-# 3D-график
-if st.checkbox("Показать 3D-график"):
-    st.header("3D-график")
-    x_3d = st.selectbox("Выберите переменную для оси X (3D):", Data.columns)
-    y_3d = st.selectbox("Выберите переменную для оси Y (3D):", Data.columns)
-    z_3d = st.selectbox("Выберите переменную для оси Z (3D):", Data.columns)
-    fig_3d = px.scatter_3d(Data, x=x_3d, y=y_3d, z=z_3d, color=color, title=f"3D-график: {x_3d}, {y_3d}, {z_3d}")
+# 3D-графік
+if st.checkbox("Показати 3D-графік"):
+    st.header("3D-графік")
+    x_3d = st.selectbox("Оберіть змінну для осі X (3D):", Data.columns)
+    y_3d = st.selectbox("Оберіть змінну для осі Y (3D):", Data.columns)
+    z_3d = st.selectbox("Оберіть змінну для осі Z (3D):", Data.columns)
+    fig_3d = px.scatter_3d(Data, x=x_3d, y=y_3d, z=z_3d, color=color, title=f"3D-графік: {x_3d}, {y_3d}, {z_3d}")
     st.plotly_chart(fig_3d)
 
-# Загрузка модели и прогнозирование
-st.header("🤖 Прогнозирование с использованием модели")
-if st.checkbox("Загрузить модель и сделать прогноз"):
-    model = load_model('C:/Users/Dasha/final_rf_model')  # Укажите путь к вашей модели
-    st.write("Модель успешно загружена!")
+# Завантаження моделі та прогнозування
+st.header("🤖 Прогнозування з використанням моделі")
+if st.checkbox("Завантажити модель і зробити прогноз"):
+    model = load_model('C:/Users/Dasha/final_rf_model')  # Вкажіть шлях до вашої моделі
+    st.write("Модель успішно завантажена!")
 
-    # Преобразуем категориальный столбец 'type' в числовой
+    # Перетворюємо категоріальний стовпець 'type' у числовий
     label_encoder = LabelEncoder()
     Data['type'] = label_encoder.fit_transform(Data['type'])
 
-    # Прогнозирование
+    # Прогнозування
     y_test = Data['quality']
     X_test = Data.drop(columns=['quality'])
     predictions = predict_model(model, data=X_test)
     y_pred = predictions['prediction_label']
 
-    # Метрики модели
-    st.subheader("Метрики модели")
+    # Метрики моделі
+    st.subheader("Метрики моделі")
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
     recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
     f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
 
-    st.write(f"**Точность (Accuracy):** {accuracy:.4f}")
+    st.write(f"**Точність (Accuracy):** {accuracy:.4f}")
     st.write(f"**Precision:** {precision:.4f}")
     st.write(f"**Recall:** {recall:.4f}")
     st.write(f"**F1-score:** {f1:.4f}")
 
-    # Матрица ошибок
-    st.subheader("Матрица ошибок")
+    # Матриця помилок
+    st.subheader("Матриця помилок")
     conf_matrix = confusion_matrix(y_test, y_pred)
-    fig_conf_matrix = px.imshow(conf_matrix, text_auto=True, title="Матрица ошибок")
+    fig_conf_matrix = px.imshow(conf_matrix, text_auto=True, title="Матриця помилок")
     st.plotly_chart(fig_conf_matrix)
 
-# Дополнительные визуализации
-st.header("📊 Дополнительные визуализации")
+# Додаткові візуалізації
+st.header("📊 Додаткові візуалізації")
 
-# Парные графики
-if st.checkbox("Показать парные графики"):
-    st.subheader("Парные графики")
-    pair_plot_vars = st.multiselect("Выберите переменные для парных графиков:", Data.columns, default=['alcohol', 'pH', 'quality'])
+# Парні графіки
+if st.checkbox("Показати парні графіки"):
+    st.subheader("Парні графіки")
+    pair_plot_vars = st.multiselect("Виберіть змінні для парних графіків:", Data.columns, default=['alcohol', 'pH', 'quality'])
     fig_pair = sns.pairplot(Data[pair_plot_vars], hue='quality' if 'quality' in pair_plot_vars else None)
     st.pyplot(fig_pair)
 
-# KDE-график
-if st.checkbox("Показать KDE-график"):
-    st.subheader("KDE-график")
-    kde_x = st.selectbox("Выберите переменную для KDE:", Data.columns)
-    fig_kde = px.density_contour(Data, x=kde_x, title=f"KDE-график для {kde_x}")
+# KDE-графік
+if st.checkbox("Показати KDE-графік"):
+    st.subheader("KDE-графік")
+    kde_x = st.selectbox("Виберіть змінну для KDE:", Data.columns)
+    fig_kde = px.density_contour(Data, x=kde_x, title=f"KDE-графік для {kde_x}")
     st.plotly_chart(fig_kde)
 
 # Streamgraph
-if st.checkbox("Показать Streamgraph"):
+if st.checkbox("Показати Streamgraph"):
     st.subheader("Streamgraph")
-    stream_x = st.selectbox("Выберите переменную для оси X (Streamgraph):", Data.columns)
-    stream_y = st.selectbox("Выберите переменную для оси Y (Streamgraph):", Data.columns)
+    stream_x = st.selectbox("Виберіть змінну для осі X (Streamgraph):", Data.columns)
+    stream_y = st.selectbox("Виберіть змінну для осі Y (Streamgraph):", Data.columns)
     fig_stream = px.area(Data, x=stream_x, y=stream_y, title=f"Streamgraph: {stream_x} vs {stream_y}")
     st.plotly_chart(fig_stream)
 
@@ -256,11 +256,11 @@ ax.set_ylabel("Алкоголь (%)")
 st.pyplot(fig)
 
 # 🔀 5. Correlation dendrogram (дендрограма кореляцій між характеристиками)
-Data_numeric = Data.select_dtypes(include=[float, int])  # Оставляем только числовые колонки
+Data_numeric = Data.select_dtypes(include=[float, int])  
 corr = Data_numeric.corr()
 
 fig, ax = plt.subplots(figsize=(10, 5))
-dist = 1 - corr  # Преобразуем корреляцию в матрицу расстояний
+dist = 1 - corr  
 linkage_matrix = sch.linkage(dist, method='ward')
 
 sch.dendrogram(linkage_matrix, labels=corr.columns, leaf_rotation=90, ax=ax)
@@ -298,8 +298,8 @@ ax.set_ylabel("Летка кислотність")
 st.pyplot(fig)
 
 # 🧩 10. Mosaic plot залежності типу вина та якості
-Data["quality"] = Data["quality"].astype(str)  # Преобразуем в строку, если нужно
-Data["type"] = Data["type"].astype(str)  # Преобразуем в строку, если нужно
+Data["quality"] = Data["quality"].astype(str) 
+Data["type"] = Data["type"].astype(str)  
 
 fig, ax = plt.subplots(figsize=(8, 6))
 mosaic(Data, ["type", "quality"], ax=ax)
@@ -309,7 +309,6 @@ st.pyplot(fig)
 # Завантаження моделі через PyCaret
 model = load_model('C:/Users/Dasha/final_rf_model')
 
-# Преобразуем категориальный столбец 'type' в числовой
 label_encoder = LabelEncoder()
 Data['type'] = label_encoder.fit_transform(Data['type'])
 
