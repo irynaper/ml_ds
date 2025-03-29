@@ -16,7 +16,7 @@ st.write("""
 - **rain_1h**: кількість опадів (дощу) за останню годину в мм.
 - **snow_1h**: кількість снігу за останню годину в мм.
 - **clouds_all**: відсоток хмарності (0–100%).
-- **weather_main**: основний тип погоди (наприклад, "Clouds", "Clear", "Rain").
+- **weather_main**: основний тип погоди (наприклад, "Clouds", "Clear", "Rain" і тд.).
 - **Rush Hour**: година пік (1 — так, 0 — ні).
 - **traffic_volume**: обсяг трафіку (цільова змінна).
 """)
@@ -50,7 +50,7 @@ fig = px.scatter(data, x=feature, y='traffic_volume', title=f'Обсяг тра�
 st.plotly_chart(fig)
 
 # Завантаження моделі та прогнозування
-model = load_model('traffic_model')
+model = load_model('traffic_classification_model')
 predictions = predict_model(model, data=data)
 
 prediction_column = predictions.columns[-1]
