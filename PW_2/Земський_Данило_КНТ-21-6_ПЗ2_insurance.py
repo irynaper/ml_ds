@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pycaret.datasets import get_data
-
+from pycaret.regression import load_model, predict_model
 
 # Завантаження даних
-data = get_data("insurance")
+data = get_data('insurance')
 
 # Опис ознак
 st.title("Аналіз датасету Insurance")
@@ -41,3 +42,27 @@ st.pyplot(fig)
 # Вивід статистики
 st.write("### Описова статистика")
 st.write(data.describe())
+
+# Завантаження моделі та передбачення
+st.header("Результати моделі")
+model = load_model('insurance_model')
+predictions = predict_model(model, data=data)
+
+# Вивід метрик
+st.write("Перші передбачення:")
+st.write(predictions.head())
+
+# Розподіл ймовірностей
+st.subheader("Розподіл передбачень")
+fig, ax = plt.subplots()
+sns.histplot(predictions['prediction_label'], bins=20, kde=True, ax=ax)
+ax.set_xlabel("Передбачені витрати")
+ax.set_ylabel("Кількість")
+st.pyplot(fig)
+
+# Boxplot залишків
+st.subheader("Boxplot залишків")
+fig, ax = plt.subplots()
+sns.boxplot(y=predictions['prediction_score'] - predictions['charges'], ax=ax)
+ax.set_ylabel("Залишки")
+st.pyplot(fig)
