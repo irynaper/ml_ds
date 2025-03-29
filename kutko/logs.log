@@ -44362,3 +44362,45 @@ Increase the number of iterations (max_iter) or scale the data as shown in:
                                subsample_for_bin=200000, subsample_freq=0))],
          verbose=False)
 2025-03-29 16:58:26,483:INFO:save_model() successfully completed......................................
+2025-03-29 17:01:34,536:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:01:34,537:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:01:34,537:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:01:34,537:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:01:36,524:INFO:Initializing load_model()
+2025-03-29 17:01:36,525:INFO:load_model(model_name=traffic_classification_model, platform=None, authentication=None, verbose=True)
+2025-03-29 17:02:56,469:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:02:56,471:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:02:56,471:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:02:56,472:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2025-03-29 17:02:58,880:INFO:Initializing load_model()
+2025-03-29 17:02:58,880:INFO:load_model(model_name=traffic_model, platform=None, authentication=None, verbose=True)
+2025-03-29 17:02:58,942:INFO:Initializing predict_model()
+2025-03-29 17:02:58,942:INFO:predict_model(self=<pycaret.regression.oop.RegressionExperiment object at 0x00000174D5DCC430>, estimator=Pipeline(memory=Memory(location=None),
+         steps=[('numerical_imputer',
+                 TransformerWrapper(include=['temp', 'rain_1h', 'snow_1h',
+                                             'clouds_all', 'Rush Hour'],
+                                    transformer=SimpleImputer())),
+                ('categorical_imputer',
+                 TransformerWrapper(include=['holiday', 'weather_main'],
+                                    transformer=SimpleImputer(strategy='most_frequent'))),
+                ('onehot_encoding',
+                 TransformerWrapper(include=['holiday', 'weather_main'],
+                                    transformer=OneHotEncoder(cols=['holiday',
+                                                                    'weather_main'],
+                                                              handle_missing='return_nan',
+                                                              use_cat_names=True))),
+                ('clean_column_names',
+                 TransformerWrapper(transformer=CleanColumnNames())),
+                ('trained_model', LGBMRegressor(n_jobs=-1, random_state=453))]), probability_threshold=None, encoded_labels=False, raw_score=False, round=4, verbose=True, ml_usecase=None, preprocess=True, encode_labels=<function _SupervisedExperiment.predict_model.<locals>.encode_labels at 0x00000174D60FA200>)
+2025-03-29 17:02:58,944:INFO:Checking exceptions
+2025-03-29 17:02:58,944:INFO:Preloading libraries
+2025-03-29 17:02:58,944:INFO:Set up data.
+2025-03-29 17:02:58,955:INFO:Set up index.

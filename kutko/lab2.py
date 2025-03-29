@@ -50,7 +50,7 @@ fig = px.scatter(data, x=feature, y='traffic_volume', title=f'Обсяг тра�
 st.plotly_chart(fig)
 
 # Завантаження моделі та прогнозування
-model = load_model('traffic_classification_model')
+model = load_model('traffic_model')
 predictions = predict_model(model, data=data)
 
 prediction_column = predictions.columns[-1]
