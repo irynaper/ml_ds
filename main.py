@@ -3,12 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pycaret.clustering import load_model, predict_model
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 
 st.set_page_config(page_title="Кластеризація країн", layout="wide")
 
 st.title("Лабораторна робота №2 — Кластеризація країн")
 
-uploaded_file = st.file_uploader("Файл", type=['csv'])
+uploaded_file = st.file_uploader("Завантажте CSV-файл", type=['csv'])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -17,24 +18,21 @@ if uploaded_file:
     st.subheader("Попередній перегляд даних")
     st.dataframe(df.head())
 
-    # 3. Опис ознак
-    st.subheader("Опис ознак (features)")
-    features = {
-        'country': 'Назва країни.',
-        'child_mort': 'Дитяча смертність (на 1000 дітей).',
-        'exports': 'Експорт як % від ВВП.',
-        'health': 'Витрати на охорону здоров’я (% від ВВП).',
-        'imports': 'Імпорт як % від ВВП.',
-        'income': 'Середній дохід на душу населення (USD).',
-        'inflation': 'Інфляція (%).',
-        'life_expec': 'Очікувана тривалість життя (роки).',
-        'total_fer': 'Коефіцієнт народжуваності.',
-        'gdpp': 'ВВП на душу населення (USD).'
-    }
-    st.table(pd.DataFrame(features.items(), columns=["Ознака", "Опис"]))
+    st.subheader("Описова статистика")
+    st.dataframe(df.describe())
 
-    # 4. Інтерактивна візуалізація
-    st.subheader("Візуалізація даних")
+    # 1. Перевірка наявності необхідних колонок
+    required_columns = {'country', 'child_mort', 'exports', 'health', 'imports', 'income', 'inflation', 'life_expec', 'total_fer', 'gdpp'}
+    if not required_columns.issubset(df.columns):
+        st.error("Структура завантаженого файлу не валідна!")
+        st.stop()
+
+    # 2. Динамічний опис колонок
+    st.subheader("Опис ознак")
+    st.dataframe(pd.DataFrame({col: df[col].dtype for col in df.columns}.items(), columns=["Ознака", "Тип даних"]))
+
+    # 3. Візуалізація однієї з ознак
+    st.subheader("Візуалізація ознак")
     selected_feature = st.selectbox("Оберіть ознаку для побудови гістограми:", df.columns[1:])
     fig, ax = plt.subplots()
     sns.histplot(df[selected_feature], kde=True, ax=ax)
@@ -42,29 +40,47 @@ if uploaded_file:
     ax.set_xlabel(selected_feature)
     st.pyplot(fig)
 
-    # 5. Завантаження моделі та передбачення
-    st.subheader("Завантаження моделі та кластеризація")
-    model = load_model("load_model")  # важливо: файл має бути в одній папці з lab2.py
+    # 4. Завантаження моделі та кластеризація
+    st.subheader("Кластеризація")
+    model = load_model("load_model")
     clustered_df = predict_model(model, data=df.drop(columns=['country']))
     clustered_df['country'] = df['country']
 
     st.success("Кластеризацію завершено успішно!")
 
-    # 6. Результати кластеризації
+    # 5. Вивід результатів кластеризації
     st.subheader("Країни та відповідні кластери")
     st.dataframe(clustered_df[['country', 'Cluster']])
 
-    # 7. Аналіз кластерів
+    # 6. Аналіз кластерів
     st.subheader("Аналіз кластерів (середні значення)")
     cluster_summary = clustered_df.groupby('Cluster').mean(numeric_only=True)
     st.dataframe(cluster_summary)
 
-    # 8. Візуалізація розподілу країн по кластерам
-    st.subheader("🗺Кількість країн у кожному кластері")
+    # 7. Метрики якості кластеризації
+    st.subheader("Метрики якості кластеризації")
+    try:
+        X = df.drop(columns=['country'])
+        labels = clustered_df['Cluster']
+
+        silhouette = silhouette_score(X, labels)
+        db_index = davies_bouldin_score(X, labels)
+        calinski = calinski_harabasz_score(X, labels)
+
+        st.markdown(f"""
+        - **Silhouette:** {silhouette:.3f}  
+        - **Davies-Bouldin:** {db_index:.3f}  
+        - **Calinski-Harabasz:** {calinski:.3f}
+        """)
+    except Exception as e:
+        st.warning(f"Не вдалося обчислити метрики: {e}")
+
+    # 8. Візуалізація кількості країн по кластерам
+    st.subheader("Розподіл країн по кластерам")
     fig2, ax2 = plt.subplots()
     cluster_counts = clustered_df['Cluster'].value_counts().sort_index()
     cluster_counts.plot(kind='bar', ax=ax2)
     ax2.set_xlabel("Кластер")
     ax2.set_ylabel("Кількість країн")
-    ax2.set_title("Розподіл країн по кластерам")
+    ax2.set_title("Кількість країн у кожному кластері")
     st.pyplot(fig2)
