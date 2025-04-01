@@ -1,77 +1,86 @@
 import streamlit as st
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
-from pycaret.regression import load_model, predict_model
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from pycaret.classification import load_model, predict_model
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from pycaret.datasets import get_data
 
-data = get_data('traffic')
+dataset = get_data('kiva')
 
 # Опис ознак
 st.write("""
-### Опис ознак датасету "traffic"
-- **holiday**: вказує на святковий день (наприклад, "None" — немає свята, або назва свята).
-- **temp**: температура повітря в градусах.
-- **rain_1h**: кількість опадів (дощу) за останню годину в мм.
-- **snow_1h**: кількість снігу за останню годину в мм.
-- **clouds_all**: відсоток хмарності (0–100%).
-- **weather_main**: основний тип погоди (наприклад, "Clouds", "Clear", "Rain" і тд.).
-- **Rush Hour**: година пік (1 — так, 0 — ні).
-- **traffic_volume**: обсяг трафіку (цільова змінна).
+### Опис ознак датасету "kiva"
+    1. country: Країна позичальника 'Dominican Republic', 'Ecuador', 'Kenya'
+    2. en: Особиста історія позичальника 
+    3. gender: Стать позичальника (M = чоловік, F = жінка)
+    4. loan_amount: Сума кредиту, яка була схвалена та виплачена (числова величина)
+    5. nonpayment: Тип кредитора 'partner', 'lender'
+    6. sector: Сектор діяльності позичальника (наприклад, 'Retail', 
+            'Clothing', 'Food', 'Services', 'Arts', 'Agriculture',
+            'Wholesale', 'Manufacturing', 'Transportation', 'Health',
+            'Education', 'Personal Use', 'Construction', 'Housing',
+            'Entertainment')
+    7. status: Статус кредиту (1 = дефолт, тобто не повернуто, 0 = повернуто)
 """)
 
-# Візуалізація 1: Гістограма
-st.subheader('Гістограма розподілу обсягу трафіку')
+# Візуалізація: Гістограма суми кредиту
+st.subheader("Гістограма суми кредиту")
 fig, ax = plt.subplots()
-sns.histplot(data['traffic_volume'], bins=30, kde=True, ax=ax)
-ax.set_xlabel('Обсяг трафіку')
+sns.histplot(dataset['loan_amount'], ax=ax)
+ax.set_title('Розподіл суми кредиту')
+ax.set_xlabel('Сума кредиту')
 ax.set_ylabel('Частота')
 st.pyplot(fig)
 
-# Візуалізація 2: Стовпчикова діаграма
-st.subheader('Середній обсяг трафіку за типом погоди')
-weather_group = data.groupby('weather_main')['traffic_volume'].mean().reset_index()
-fig = px.bar(weather_group, x='weather_main', y='traffic_volume', title='Середній обсяг трафіку за типом погоди')
-st.plotly_chart(fig)
+# Візуалізація: Стовпчикова діаграма за статтю
+st.subheader("Розподіл за статтю")
+gender_counts = dataset['gender'].value_counts()
+st.bar_chart(gender_counts)
 
-# Візуалізація 3: Боксплот
-st.subheader('Боксплот обсягу трафіку за годиною пік')
+# Візуалізація: Кругова діаграма для секторів
+st.subheader("Кругова діаграма секторів")
+sector_counts = dataset['sector'].value_counts()
 fig, ax = plt.subplots()
-sns.boxplot(x='Rush Hour', y='traffic_volume', data=data, ax=ax)
-ax.set_xlabel('Година пік (1 - так, 0 - ні)')
-ax.set_ylabel('Обсяг трафіку')
+ax.pie(sector_counts, labels=sector_counts.index, autopct='%1.1f%%', startangle=90)
+ax.axis('equal')
 st.pyplot(fig)
 
-# Візуалізація 4: Інтерактивний Scatter Plot
-st.subheader('Scatter Plot: Обсяг трафіку vs вибрана ознака')
-feature = st.selectbox('Виберіть ознаку для осі X', ['temp', 'rain_1h', 'snow_1h', 'clouds_all'])
-fig = px.scatter(data, x=feature, y='traffic_volume', title=f'Обсяг трафіку vs {feature}')
-st.plotly_chart(fig)
+# Інтерактивний вибір країни
+st.subheader("Вибір країни для аналізу")
+countries = dataset['country'].unique()
+selected_country = st.selectbox("Оберіть країну:", countries)
+country_data = dataset[dataset['country'] == selected_country]
+st.write(f"Дані для країни {selected_country}:", country_data.head())
 
-# Завантаження моделі та прогнозування
-model = load_model('traffic_model')
-predictions = predict_model(model, data=data)
-
-prediction_column = predictions.columns[-1]
-# Обчислення метрик
-st.subheader("Model Metrics")
-if prediction_column in predictions.columns:
-    mae = mean_absolute_error(data['traffic_volume'], predictions[prediction_column])
-    mse = mean_squared_error(data['traffic_volume'], predictions[prediction_column])
-    r2 = r2_score(data['traffic_volume'], predictions[prediction_column])
-    st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-    st.write(f"Mean Squared Error (MSE): {mse:.2f}")
-    st.write(f"R² Score: {r2:.2f}")
-else:
-    st.error("Prediction column not found in the predictions DataFrame.")
-
-# Графік прогнозів vs реальних значень
-st.subheader('Графік прогнозів vs реальних значень')
+# Візуалізація: Боксплот суми кредиту за статусом
+st.subheader("Боксплот суми кредиту за статусом")
 fig, ax = plt.subplots()
-ax.scatter(data['traffic_volume'], predictions[prediction_column], alpha=0.5)
-ax.plot([data['traffic_volume'].min(), data['traffic_volume'].max()], 
-        [data['traffic_volume'].min(), data['traffic_volume'].max()], 'r--')
-ax.set_xlabel('Реальний обсяг трафіку')
-ax.set_ylabel('Прогнозований обсяг трафіку')
+sns.boxplot(x='status', y='loan_amount', data=dataset, ax=ax)
+ax.set_title('Сума кредиту за статусом')
+ax.set_xlabel('Статус (0 = повернуто, 1 = дефолт)')
+ax.set_ylabel('Сума кредиту')
+st.pyplot(fig)
+
+# Завантаження моделі
+model = load_model('kiva_model')
+
+# Прогнозування
+predictions = predict_model(model, data=dataset)
+
+# Метрики
+st.subheader("Метрики моделі")
+y_true = dataset['status']
+y_pred = predictions['Label'] if 'Label' in predictions else predictions['prediction_label']
+accuracy = accuracy_score(y_true, y_pred)
+st.write(f"Точність (Accuracy): {accuracy:.2f}")
+st.text("Звіт класифікації:\n" + classification_report(y_true, y_pred))
+
+# Матриця помилок
+st.subheader("Матриця помилок")
+cm = confusion_matrix(y_true, y_pred)
+fig, ax = plt.subplots()
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+ax.set_xlabel('Передбачено')
+ax.set_ylabel('Фактичне')
 st.pyplot(fig)
